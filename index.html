@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A Metais • Gerenciador</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-icon">♻</div><div><b>M.A METAIS</b><small>FERRO VELHO</small></div></div>
+    <nav>
+      <button class="nav active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+      <button class="nav" data-page="compras">▣ <span>Compras</span></button>
+      <button class="nav" data-page="vendas">◆ <span>Vendas</span></button>
+      <button class="nav" data-page="estoque">◈ <span>Estoque</span></button>
+      <button class="nav" data-page="relatorios">📜 <span>Histórico</span></button>
+    </nav>
+    <div class="side-bottom"><small>Sistema local</small><span>● Online</span></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="today"></p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="secondary" id="closeDay">🌙 Fechar dia</button>
+        <button class="primary" id="newPurchase">＋ Nova compra</button>
+        <button class="primary" id="newSale">＋ Nova venda</button>
+      </div>
+    </header>
+
+    <!-- Lista de sugestões para pagamento -->
+    <datalist id="payOptions">
+      <option value="Dinheiro"></option>
+      <option value="PIX"></option>
+      <option value="PIX / Dinheiro"></option>
+    </datalist>
+
+    <section id="dashboard" class="page active-page">
+      <div class="cards">
+        <div class="card"><div class="card-icon green">▣</div><div><span>Compras de hoje</span><strong id="todayPurchases">0</strong></div></div>
+        <div class="card"><div class="card-icon blue">R$</div><div><span>Total gasto</span><strong id="totalSpent">R$ 0,00</strong></div></div>
+        <div class="card"><div class="card-icon orange">⚖</div><div><span>Kg comprados</span><strong id="totalKg">0 kg</strong></div></div>
+        <div class="card"><div class="card-icon purple">◈</div><div><span>Estoque</span><strong id="stockKg">0 kg</strong></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h2>Compras recentes</h2><button class="link" data-go="compras">Ver todas</button></div>
+          <div id="recentPurchases" class="table-wrap"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Estoque por material</h2></div>
+          <div id="stockList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="compras" class="page">
+      <div class="panel">
+        <div class="panel-head"><h2>Registrar compra</h2></div>
+        <form id="purchaseForm" class="form-grid">
+          <label>Material
+            <select id="material" required></select>
+          </label>
+          <label>Peso (kg)<input id="weight" type="number" step="0.01" min="0" required></label>
+          <label>Preço por kg (R$)<input id="priceKg" type="number" step="0.01" min="0" required></label>
+          <label>Valor total (R$)<input id="total" type="number" step="0.01" min="0" required></label>
+          <label>Vendedor / pessoa<input id="seller" type="text" placeholder="Nome"></label>
+          <label>Observação (Pagamento)
+            <input id="note" type="text" list="payOptions" placeholder="PIX ou Dinheiro">
+          </label>
+          <div class="form-actions"><button type="reset" class="secondary">Limpar</button><button class="primary">Salvar compra</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Histórico de compras do dia</h2><input class="search" id="search" placeholder="Pesquisar material ou pessoa..."></div>
+        <div id="purchaseTable" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <section id="vendas" class="page">
+      <div class="panel">
+        <div class="panel-head"><h2>Registrar venda</h2></div>
+        <form id="saleForm" class="form-grid">
+          <label>Material<select id="sMaterial" required></select></label>
+          <label>Peso (kg)<input id="sWeight" type="number" step="0.01" min="0" required></label>
+          <label>Preço por kg (R$)<input id="sPrice" type="number" step="0.01" min="0" required></label>
+          <label>Valor total (R$)<input id="sTotal" type="number" step="0.01" min="0" required></label>
+          <label>Cliente<input id="sSeller" type="text"></label>
+          <label>Observação (Pagamento)
+            <input id="sNote" type="text" list="payOptions" placeholder="PIX ou Dinheiro">
+          </label>
+          <div class="form-actions"><button class="primary">Salvar venda</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Histórico de vendas do dia</h2><input class="search" id="saleSearch" placeholder="Pesquisar..."></div>
+        <div id="salesTable" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <section id="estoque" class="page">
+      <div class="panel"><div class="panel-head"><h2>Estoque por material</h2></div><div id="stockTable" class="table-wrap"></div></div>
+    </section>
+
+    <section id="relatorios" class="page">
+      <div class="cards mini">
+        <div class="card"><span>Dias Fechados</span><strong id="reportCount">0</strong></div>
+      </div>
+      <div id="reportHistoryList"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="saleModal">
+  <div class="modal-box">
+    <button class="close" data-close="saleModal">×</button>
+    <h2>Nova venda</h2>
+    <p>Registre a saída de material do estoque.</p>
+    <form id="saleModalForm" class="form-grid">
+      <label>Material<select id="smMaterial" required></select></label>
+      <label>Peso (kg)<input id="smWeight" type="number" step="0.01" min="0" required></label>
+      <label>Preço por kg (R$)<input id="smPrice" type="number" step="0.01" min="0" required></label>
+      <label>Valor total (R$)<input id="smTotal" type="number" step="0.01" min="0" required></label>
+      <label>Cliente<input id="smSeller"></label>
+      <label>Observação<input id="smNote" type="text" list="payOptions" placeholder="PIX ou Dinheiro"></label>
+      <div class="form-actions"><button class="primary">Salvar venda</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <button class="close" id="closeModal" data-close="modal">×</button>
+    <h2>Nova compra</h2>
+    <p>Preencha os dados da compra.</p>
+    <form id="modalForm" class="form-grid">
+      <label>Material<select id="mMaterial" required></select></label>
+      <label>Peso (kg)<input id="mWeight" type="number" step="0.01" min="0" required></label>
+      <label>Preço por kg (R$)<input id="mPrice" type="number" step="0.01" min="0" required></label>
+      <label>Valor total (R$)<input id="mTotal" type="number" step="0.01" min="0" required></label>
+      <label>Vendedor<input id="mSeller" type="text"></label>
+      <label>Observação<input id="mNote" type="text" list="payOptions" placeholder="PIX ou Dinheiro"></label>
+      <div class="form-actions"><button class="primary">Salvar compra</button></div>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
